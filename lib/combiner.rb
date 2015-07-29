@@ -19,9 +19,9 @@ class Combiner
     Enumerator.new do |yielder|
       last_values = Array.new(enumerators.size)
       done = enumerators.all? { |enumerator| enumerator.nil? }
-      while not done
+      while !done
         last_values.each_with_index do |value, index|
-          if value.nil? and not enumerators[index].nil?
+          if value.nil? && !enumerators[index].nil?
             begin
               last_values[index] = enumerators[index].next
             rescue StopIteration
@@ -30,10 +30,10 @@ class Combiner
           end
         end
 
-        done = enumerators.all? { |enumerator| enumerator.nil? } and last_values.compact.empty?
+        done = enumerators.all? { |enumerator| enumerator.nil? } && last_values.compact.empty?
         unless done
           min_key = last_values.map { |e| key(e) }.min do |a, b|
-            if a.nil? and b.nil?
+            if a.nil? && b.nil?
               0
             elsif a.nil?
               1

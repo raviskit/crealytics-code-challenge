@@ -37,14 +37,14 @@ class Modifier
     done = false
     file_index = 0
     file_name = output.gsub('.txt', '')
-    while not done do
+    while !done do
       CSV.open(file_name + "_#{file_index}.txt", "wb", { :col_sep => "\t", :headers => :first_row, :row_sep => "\r\n" }) do |csv|
         headers_written = false
         line_count = 0
         while line_count < LINES_PER_FILE
           begin
             merged = merger.next
-            if not headers_written
+            if !headers_written
               csv << merged.keys
               headers_written = true
               line_count +=1
@@ -86,7 +86,7 @@ class Modifier
         hash[key] = hash[key].last
       end
       LAST_REAL_VALUE_WINS.each do |key|
-        hash[key] = hash[key].select {|v| not (v.nil? or v == 0 or v == '0' or v == '')}.last
+        hash[key] = hash[key].select {|v| !(v.nil? || v == 0 || v == '0' || v == '')}.last
       end
       INT_VALUES.each do |key|
         hash[key] = hash[key][0].to_s
