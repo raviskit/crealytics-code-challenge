@@ -5,6 +5,8 @@ class Modifier
   LAST_REAL_VALUE_WINS = ['Last Avg CPC', 'Last Avg Pos']
   INT_VALUES = ['Clicks', 'Impressions', 'ACCOUNT - Clicks', 'CAMPAIGN - Clicks', 'BRAND - Clicks', 'BRAND+CATEGORY - Clicks', 'ADGROUP - Clicks', 'KEYWORD - Clicks']
   FLOAT_VALUES = ['Avg CPC', 'CTR', 'Est EPC', 'newBid', 'Costs', 'Avg Pos']
+  NUMBER_OF_COMMISSIONS = ['number of commissions']
+  COMMISSION_VALUES = ['Commission Value', 'ACCOUNT - Commission Value', 'CAMPAIGN - Commission Value', 'BRAND - Commission Value', 'BRAND+CATEGORY - Commission Value', 'ADGROUP - Commission Value', 'KEYWORD - Commission Value']
 
   LINES_PER_FILE = 120000
 
@@ -94,10 +96,10 @@ class Modifier
       FLOAT_VALUES.each do |key|
         hash[key] = hash[key][0].from_german_to_f.to_german_s
       end
-      ['number of commissions'].each do |key|
+      NUMBER_OF_COMMISSIONS.each do |key|
         hash[key] = (@cancellation_factor * hash[key][0].from_german_to_f).to_german_s
       end
-      ['Commission Value', 'ACCOUNT - Commission Value', 'CAMPAIGN - Commission Value', 'BRAND - Commission Value', 'BRAND+CATEGORY - Commission Value', 'ADGROUP - Commission Value', 'KEYWORD - Commission Value'].each do |key|
+      COMMISSION_VALUES.each do |key|
         hash[key] = (@cancellation_factor * @saleamount_factor * hash[key][0].from_german_to_f).to_german_s
       end
       hash
