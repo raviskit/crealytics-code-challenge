@@ -6,15 +6,15 @@
 # - enumerator for the combined elements
 class Combiner
 
-  def initialize(&key_extractor)
+  def initialize &key_extractor
     @key_extractor = key_extractor
   end
 
-  def key(value)
+  def key value
     value.nil? ? nil : @key_extractor.call(value)
   end
 
-  def combine(*enumerators)
+  def combine *enumerators
     Enumerator.new do |yielder|
       last_values = Array.new(enumerators.size)
       done = enumerators.all? { |enumerator| enumerator.nil? }

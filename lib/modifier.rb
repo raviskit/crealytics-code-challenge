@@ -8,12 +8,12 @@ class Modifier
 
   LINES_PER_FILE = 120000
 
-  def initialize(saleamount_factor, cancellation_factor)
+  def initialize saleamount_factor, cancellation_factor
     @saleamount_factor = saleamount_factor
     @cancellation_factor = cancellation_factor
   end
 
-  def modify(output, input)
+  def modify output, input
     input = sort(input)
 
     input_enumerator = lazy_read(input)
@@ -61,7 +61,7 @@ class Modifier
     end
   end
 
-  def sort(file)
+  def sort file
     output = "#{file}.sorted"
     content_as_table = parse(file)
     headers = content_as_table.headers
@@ -73,7 +73,7 @@ class Modifier
 
   private
 
-    def combine(merged)
+    def combine merged
       result = []
       merged.each do |_, hash|
         result << combine_values(hash)
@@ -81,7 +81,7 @@ class Modifier
       result
     end
 
-    def combine_values(hash)
+    def combine_values hash
       LAST_VALUE_WINS.each do |key|
         hash[key] = hash[key].last
       end
@@ -103,7 +103,7 @@ class Modifier
       hash
     end
 
-    def combine_hashes(list_of_rows)
+    def combine_hashes list_of_rows
       keys = []
       list_of_rows.each do |row|
         next if row.nil?
@@ -123,11 +123,11 @@ class Modifier
 
     DEFAULT_CSV_OPTIONS = { :col_sep => "\t", :headers => :first_row }
 
-    def parse(file)
+    def parse file
       CSV.read(file, DEFAULT_CSV_OPTIONS)
     end
 
-    def lazy_read(file)
+    def lazy_read file
       Enumerator.new do |yielder|
         CSV.foreach(file, DEFAULT_CSV_OPTIONS) do |row|
           yielder.yield(row)
@@ -135,7 +135,7 @@ class Modifier
       end
     end
 
-    def write(content, headers, output)
+    def write content, headers, output
       CSV.open(output, "wb", { :col_sep => "\t", :headers => :first_row, :row_sep => "\r\n" }) do |csv|
         csv << headers
         content.each do |row|

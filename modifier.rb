@@ -3,7 +3,7 @@ require_relative 'lib/modifier'
 require 'csv'
 require 'date'
 
-def latest(name)
+def latest name
   files = Dir["#{ ENV["HOME"] }/workspace/*#{name}*.txt"]
 
   files.sort_by! do |file|
