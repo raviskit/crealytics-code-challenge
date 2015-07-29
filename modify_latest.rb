@@ -6,7 +6,7 @@ require 'date'
 DATE_FORMAT = /\d+-\d+-\d+/
 FILE_NAME_FORMAT = /\d+-\d+-\d+_[[:alpha:]]+\.txt$/
 
-# loading latest performance data from a text file
+# get the latest performance data file name
 def latest name
   files = Dir["#{ ENV["HOME"] }/workspace/*#{ name }*.txt"]
   throw RuntimeError if files.empty?

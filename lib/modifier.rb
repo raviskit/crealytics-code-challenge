@@ -63,17 +63,17 @@ class Modifier
     end
   end
 
-  def sort file
-    output = "#{file}.sorted"
-    content_as_table = parse_csv(file)
-    headers = content_as_table.headers
-    index_of_key = headers.index('Clicks')
-    content = content_as_table.sort_by { |a| -a[index_of_key].to_i }
-    write(content, headers, output)
-    return output
-  end
-
   private
+
+    def sort file
+      output = "#{file}.sorted"
+      content_as_table = parse_csv(file)
+      headers = content_as_table.headers
+      index_of_key = headers.index('Clicks')
+      content = content_as_table.sort_by { |a| -a[index_of_key].to_i }
+      write(content, headers, output)
+      output
+    end
 
     def combine merged
       result = []
