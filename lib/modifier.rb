@@ -15,10 +15,10 @@ class Modifier
     @cancellation_factor = cancellation_factor
   end
 
-  def modify output, input
-    input = sort(input)
+  def modify output_file, input_file
+    sorted_file = sort(input_file)
 
-    input_enumerator = lazy_read(input)
+    input_enumerator = lazy_read(sorted_file)
 
     combiner = Combiner.new do |value|
       value[KEYWORD_UNIQUE_ID]
@@ -67,11 +67,11 @@ class Modifier
 
     def sort file
       output = "#{file}.sorted"
-      content_as_table = parse_csv(file)
+      content_as_table = read_csv(file)
       headers = content_as_table.headers
       index_of_key = headers.index('Clicks')
       content = content_as_table.sort_by { |a| -a[index_of_key].to_i }
-      write(content, headers, output)
+      write_csv(content, headers, output)
       output
     end
 
@@ -125,7 +125,7 @@ class Modifier
 
     DEFAULT_CSV_OPTIONS = { col_sep: "\t", headers: :first_row }
 
-    def parse_csv file
+    def read_csv file
       CSV.read(file, DEFAULT_CSV_OPTIONS)
     end
 
@@ -137,7 +137,7 @@ class Modifier
       end
     end
 
-    def write content, headers, output
+    def write_csv content, headers, output
       CSV.open(output, "wb", { col_sep: "\t", headers: :first_row, row_sep: "\r\n" }) do |csv|
         csv << headers
         content.each do |row|

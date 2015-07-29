@@ -6,8 +6,8 @@ require 'date'
 DATE_FORMAT = /\d+-\d+-\d+/
 FILE_NAME_FORMAT = /\d+-\d+-\d+_[[:alpha:]]+\.txt$/
 
-# get the latest performance data file name
-def latest name
+# get the latest performance data file path
+def latest_file_path name
   files = Dir["#{ ENV["HOME"] }/workspace/*#{ name }*.txt"]
   throw RuntimeError if files.empty?
 
@@ -34,10 +34,10 @@ class Float
 	end
 end
 
-modified = input = latest('project_2012-07-27_2012-10-10_performancedata')
+modified_file = input_file = latest_file_path('project_2012-07-27_2012-10-10_performancedata')
 modification_factor = 1
 cancellaction_factor = 0.4
 modifier = Modifier.new(modification_factor, cancellaction_factor)
-modifier.modify(modified, input)
+modifier.modify(modified_file, input_file)
 
 puts "DONE modifying"
