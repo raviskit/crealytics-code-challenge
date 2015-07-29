@@ -15,7 +15,7 @@ end
 
 RSpec::Matchers.define :be_empty do
   match do |enumerator|
-  read_from_enumerator(enumerator).empty?
+    read_from_enumerator(enumerator).empty?
   end
 end
 

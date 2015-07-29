@@ -40,7 +40,7 @@ class Modifier
     file_index = 0
     file_name = output.gsub('.txt', '')
     while !done do
-      CSV.open(file_name + "_#{file_index}.txt", "wb", { :col_sep => "\t", :headers => :first_row, :row_sep => "\r\n" }) do |csv|
+      CSV.open(file_name + "_#{file_index}.txt", "wb", { col_sep: "\t", headers: :first_row, row_sep: "\r\n" }) do |csv|
         headers_written = false
         line_count = 0
         while line_count < LINES_PER_FILE
@@ -65,7 +65,7 @@ class Modifier
 
   def sort file
     output = "#{file}.sorted"
-    content_as_table = parse(file)
+    content_as_table = parse_csv(file)
     headers = content_as_table.headers
     index_of_key = headers.index('Clicks')
     content = content_as_table.sort_by { |a| -a[index_of_key].to_i }
@@ -123,9 +123,9 @@ class Modifier
       result
     end
 
-    DEFAULT_CSV_OPTIONS = { :col_sep => "\t", :headers => :first_row }
+    DEFAULT_CSV_OPTIONS = { col_sep: "\t", headers: :first_row }
 
-    def parse file
+    def parse_csv file
       CSV.read(file, DEFAULT_CSV_OPTIONS)
     end
 
@@ -138,7 +138,7 @@ class Modifier
     end
 
     def write content, headers, output
-      CSV.open(output, "wb", { :col_sep => "\t", :headers => :first_row, :row_sep => "\r\n" }) do |csv|
+      CSV.open(output, "wb", { col_sep: "\t", headers: :first_row, row_sep: "\r\n" }) do |csv|
         csv << headers
         content.each do |row|
           csv << row
