@@ -16,8 +16,7 @@ class Modifier
   end
 
   def modify output_file, input_file
-    sorted_file = sort(input_file)
-
+    sorted_file = sort_by_clicks(input_file)
     input_enumerator = lazy_read(sorted_file)
 
     combiner = Combiner.new do |value|
@@ -25,6 +24,7 @@ class Modifier
     end.combine(input_enumerator)
 
     merger = Enumerator.new do |yielder|
+      # TODO refactor
       while true
         begin
           list_of_rows = combiner.next
@@ -39,6 +39,7 @@ class Modifier
     done = false
     file_index = 0
     file_name = output.gsub('.txt', '')
+    # TODO refactor
     while !done do
       CSV.open(file_name + "_#{file_index}.txt", "wb", { col_sep: "\t", headers: :first_row, row_sep: "\r\n" }) do |csv|
         headers_written = false
@@ -65,14 +66,15 @@ class Modifier
 
   private
 
-    def sort file
-      output = "#{file}.sorted"
+    # sorts by clicks
+    def sort_by_clicks file
+      output_file = "#{file}.sorted"
       content_as_table = read_csv(file)
       headers = content_as_table.headers
       index_of_key = headers.index('Clicks')
-      content = content_as_table.sort_by { |a| -a[index_of_key].to_i }
-      write_csv(content, headers, output)
-      output
+      sorted_content = content_as_table.sort_by { |a| -a[index_of_key].to_i }
+      write_csv(sorted_content, headers, output_file)
+      output_file
     end
 
     def combine merged
@@ -83,6 +85,7 @@ class Modifier
       result
     end
 
+    # TODO test and refactor
     def combine_values hash
       LAST_VALUE_WINS.each do |key|
         hash[key] = hash[key].last
@@ -105,6 +108,7 @@ class Modifier
       hash
     end
 
+    # TODO test and refactor
     def combine_hashes list_of_rows
       keys = []
       list_of_rows.each do |row|
@@ -129,6 +133,7 @@ class Modifier
       CSV.read(file, DEFAULT_CSV_OPTIONS)
     end
 
+    # lazily read CSV file and init an Enumerator of lines
     def lazy_read file
       Enumerator.new do |yielder|
         CSV.foreach(file, DEFAULT_CSV_OPTIONS) do |row|

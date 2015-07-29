@@ -23,15 +23,15 @@ end
 
 # expanding standard classes w/ German-specific conversions
 class String
-	def from_german_to_f
-		self.gsub(',', '.').to_f
-	end
+  def from_german_to_f
+    self.gsub(',', '.').to_f
+  end
 end
 
 class Float
-	def to_german_s
-		self.to_s.gsub('.', ',')
-	end
+  def to_german_s
+    self.to_s.gsub('.', ',')
+  end
 end
 
 modified_file = input_file = latest_file_path('project_2012-07-27_2012-10-10_performancedata')
