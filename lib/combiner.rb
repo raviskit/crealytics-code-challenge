@@ -11,10 +11,6 @@ class Combiner
     @key_extractor = key_extractor
   end
 
-  def key value
-    value.nil? ? nil : @key_extractor.call(value)
-  end
-
   def combine *enumerators
     Enumerator.new do |yielder|
       # an array of last values
@@ -45,17 +41,7 @@ class Combiner
         unless done
 
           # finding the min key
-          min_key = last_values.map { |e| key(e) }.min do |a, b|
-            if a.nil? && b.nil?
-              0
-            elsif a.nil?
-              1
-            elsif b.nil?
-              -1
-            else
-              a <=> b
-            end
-          end
+          min_key = get_min_key(last_values)
 
           values = Array.new(last_values.size)
           last_values.each_with_index do |value, index|
@@ -69,4 +55,26 @@ class Combiner
       end
     end
   end
+
+  private
+
+    def get_min_key values
+      values.
+        map { |value| key(value) }.
+        min do |a, b|
+          if a.nil? && b.nil?
+            0
+          elsif a.nil?
+            1
+          elsif b.nil?
+            -1
+          else
+            a <=> b
+          end
+        end
+    end
+
+    def key value
+      @key_extractor.call(value) unless value.nil?
+    end
 end
