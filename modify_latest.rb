@@ -3,23 +3,25 @@ require_relative 'lib/modifier'
 require 'csv'
 require 'date'
 
+DATE_FORMAT = /\d+-\d+-\d+/
+FILE_NAME_FORMAT = /\d+-\d+-\d+_[[:alpha:]]+\.txt$/
+
+# loading latest performance data from a text file
 def latest name
-  files = Dir["#{ ENV["HOME"] }/workspace/*#{name}*.txt"]
-
-  files.sort_by! do |file|
-    last_date = /\d+-\d+-\d+_[[:alpha:]]+\.txt$/.match file
-    last_date = last_date.to_s.match(/\d+-\d+-\d+/)
-
-    date = DateTime.parse(last_date.to_s)
-    date
-  end
-
+  files = Dir["#{ ENV["HOME"] }/workspace/*#{ name }*.txt"]
   throw RuntimeError if files.empty?
+
+  files.sort_by! do |file_name|
+    file_match_data = FILE_NAME_FORMAT.match file_name
+    date_match_data = file_match_data.to_s.match DATE_FORMAT
+
+    DateTime.parse(date_match_data.to_s)
+  end
 
   files.last
 end
 
-# expanding standard classes
+# expanding standard classes w/ German-specific conversions
 class String
 	def from_german_to_f
 		self.gsub(',', '.').to_f
