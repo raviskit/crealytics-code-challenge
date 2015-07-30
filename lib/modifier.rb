@@ -11,7 +11,7 @@ class Modifier
   LINES_PER_FILE = 120000
 
   CSV_READ_OPTIONS = { col_sep: "\t", headers: :first_row }
-  CSV_WRITE_OPTIONS = { col_sep: "\t", headers: :first_row, row_sep: "\r\n" }
+  CSV_WRITE_OPTIONS = CSV_READ_OPTIONS.merge(row_sep: "\r\n")
 
   def initialize saleamount_factor, cancellation_factor
     @saleamount_factor = saleamount_factor
