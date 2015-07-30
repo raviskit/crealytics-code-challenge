@@ -22,19 +22,15 @@ class Modifier
     sorted_file = sort_by_clicks(input_file)
     input_enumerator = lazy_read(sorted_file)
 
+    # combine data by key
     combiner = Combiner.new do |value|
       value[KEYWORD_UNIQUE_ID]
     end.combine(input_enumerator)
 
     merger = Enumerator.new do |yielder|
-      while true
-        begin
-          list_of_rows = combiner.next
-          merged = combine_hashes(list_of_rows)
-          yielder.yield(combine_values(merged))
-        rescue StopIteration
-          break
-        end
+      combiner.each do |list_of_rows|
+        merged_hashes = combine_hashes(list_of_rows)
+        yielder.yield(combine_values(merged_hashes))
       end
     end
 
