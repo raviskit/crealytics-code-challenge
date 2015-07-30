@@ -39,8 +39,6 @@ class Combiner
         # done if all enumerators are nil and there are no last values
         done = enumerators.all? { |enumerator| enumerator.nil? } && last_values.compact.empty?
         unless done
-
-          # finding the min key
           min_key = get_min_key(last_values)
 
           values = Array.new(last_values.size)
@@ -62,15 +60,7 @@ class Combiner
       values.
         map { |value| key(value) }.
         min do |a, b|
-          if a.nil? && b.nil?
-            0
-          elsif a.nil?
-            1
-          elsif b.nil?
-            -1
-          else
-            a <=> b
-          end
+          a.nil? ^ b.nil? ? (a.nil? ? 1 : -1) : a <=> b
         end
     end
 
