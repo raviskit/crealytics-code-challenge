@@ -56,24 +56,16 @@ class Modifier
       KEYWORD - Commission Value".
       split("\n").map(&:strip)
 
-  LINES_PER_FILE = 120000
-
-  CSV_READ_OPTIONS = { col_sep: "\t", headers: :first_row }
-  CSV_WRITE_OPTIONS = CSV_READ_OPTIONS.merge(row_sep: "\r\n")
-
   def initialize saleamount_factor, cancellation_factor
     @saleamount_factor = saleamount_factor
     @cancellation_factor = cancellation_factor
   end
 
-  def modify output_file, input_file
-    sorted_file = sort_by_clicks(input_file)
-    input_enumerator = lazy_read(sorted_file)
-
+  def modify csv_interface
+    input_enumerator = csv_interface.sort_by_clicks.lazy_read
     combiner = get_combiner(input_enumerator)
     merger = get_merger(combiner)
-
-    merger_to_csv(merger, output_file)
+    csv_interface.write(merger)
   end
 
   private
@@ -93,47 +85,6 @@ class Modifier
           yielder.yield(combine_values(merged_hashes))
         end
       end
-    end
-
-    def merger_to_csv merger, output_file
-      done = false
-      file_index = 0
-      file_name = output_file.gsub('.txt', '')
-
-      while !done do
-        CSV.open(file_name + "_#{file_index}.txt", "wb", CSV_WRITE_OPTIONS) do |csv|
-          headers_written = false
-          line_count = 0
-
-          while line_count < LINES_PER_FILE
-            begin
-              merged = merger.next
-              if !headers_written
-                csv << merged.keys
-                headers_written = true
-                line_count +=1
-              end
-              csv << merged
-              line_count +=1
-            rescue StopIteration
-              done = true
-              break
-            end
-          end
-          file_index += 1
-        end
-      end
-    end
-
-    # sorts by clicks
-    def sort_by_clicks file
-      output_file = "#{file}.sorted"
-      content_as_table = read_csv(file)
-      headers = content_as_table.headers
-      index_of_key = headers.index('Clicks')
-      sorted_content = content_as_table.sort_by { |a| -a[index_of_key].to_i }
-      write_csv(sorted_content, headers, output_file)
-      output_file
     end
 
     def combine merged
@@ -171,28 +122,6 @@ class Modifier
       keys.reduce({}) do |result, key|
         result[key] = list_of_rows.map{|row| row.nil? ? nil : row[key] }
         result
-      end
-    end
-
-    def read_csv file
-      CSV.read(file, CSV_READ_OPTIONS)
-    end
-
-    # lazily read CSV file and init an Enumerator of lines
-    def lazy_read file
-      Enumerator.new do |yielder|
-        CSV.foreach(file, CSV_READ_OPTIONS) do |row|
-          yielder.yield(row)
-        end
-      end
-    end
-
-    def write_csv content, headers, output
-      CSV.open(output, "wb", CSV_WRITE_OPTIONS) do |csv|
-        csv << headers
-        content.each do |row|
-          csv << row
-        end
       end
     end
 end
