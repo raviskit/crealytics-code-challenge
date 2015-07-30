@@ -10,7 +10,7 @@ class CSVInterface
 
   def initialize input_file
     @input_filename = latest_file_path(input_file)
-    @output_filename = @input_filename
+    @output_filename = @input_filename.gsub('.txt', '')
   end
 
   def sort_by_clicks
@@ -35,10 +35,9 @@ class CSVInterface
   def write merger
     done = false
     file_index = 0
-    file_name = @output_filename.gsub('.txt', '')
 
     while !done do
-      CSV.open(file_name + "_#{ file_index }.txt", "wb", CSV_WRITE_OPTIONS) do |csv|
+      CSV.open(@output_filename + "_#{ file_index }.txt", "wb", CSV_WRITE_OPTIONS) do |csv|
         headers_written = false
         line_count = 0
 
@@ -72,10 +71,8 @@ class CSVInterface
       files.sort_by! do |file_name|
         file_match_data = FILE_NAME_FORMAT.match file_name
         date_match_data = file_match_data.to_s.match DATE_FORMAT
-
         DateTime.parse(date_match_data.to_s)
       end
-
       files.last
     end
 
