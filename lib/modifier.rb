@@ -27,7 +27,6 @@ class Modifier
     end.combine(input_enumerator)
 
     merger = Enumerator.new do |yielder|
-      # TODO refactor
       while true
         begin
           list_of_rows = combiner.next
@@ -41,12 +40,13 @@ class Modifier
 
     done = false
     file_index = 0
-    file_name = output.gsub('.txt', '')
-    # TODO refactor
+    file_name = output_file.gsub('.txt', '')
+
     while !done do
       CSV.open(file_name + "_#{file_index}.txt", "wb", CSV_WRITE_OPTIONS) do |csv|
         headers_written = false
         line_count = 0
+
         while line_count < LINES_PER_FILE
           begin
             merged = merger.next
@@ -88,7 +88,6 @@ class Modifier
       result
     end
 
-    # TODO test and refactor
     def combine_values hash
       LAST_VALUE_WINS.each do |key|
         hash[key] = hash[key].last
@@ -111,23 +110,12 @@ class Modifier
       hash
     end
 
-    # TODO test and refactor
     def combine_hashes list_of_rows
-      keys = []
-      list_of_rows.each do |row|
-        next if row.nil?
-        row.headers.each do |key|
-          keys << key
-        end
+      keys = list_of_rows.compact.map(&:headers).flatten
+      keys.reduce({}) do |result, key|
+        result[key] = list_of_rows.map{|row| row.nil? ? nil : row[key] }
+        result
       end
-      result = {}
-      keys.each do |key|
-        result[key] = []
-        list_of_rows.each do |row|
-          result[key] << (row.nil? ? nil : row[key])
-        end
-      end
-      result
     end
 
     def read_csv file
