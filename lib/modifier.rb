@@ -22,48 +22,59 @@ class Modifier
     sorted_file = sort_by_clicks(input_file)
     input_enumerator = lazy_read(sorted_file)
 
-    # combine data by key
-    combiner = Combiner.new do |value|
-      value[KEYWORD_UNIQUE_ID]
-    end.combine(input_enumerator)
+    combiner = get_combiner(input_enumerator)
+    merger = get_merger(combiner)
 
-    merger = Enumerator.new do |yielder|
-      combiner.each do |list_of_rows|
-        merged_hashes = combine_hashes(list_of_rows)
-        yielder.yield(combine_values(merged_hashes))
-      end
-    end
-
-    done = false
-    file_index = 0
-    file_name = output_file.gsub('.txt', '')
-
-    while !done do
-      CSV.open(file_name + "_#{file_index}.txt", "wb", CSV_WRITE_OPTIONS) do |csv|
-        headers_written = false
-        line_count = 0
-
-        while line_count < LINES_PER_FILE
-          begin
-            merged = merger.next
-            if !headers_written
-              csv << merged.keys
-              headers_written = true
-              line_count +=1
-            end
-            csv << merged
-            line_count +=1
-          rescue StopIteration
-            done = true
-            break
-          end
-        end
-        file_index += 1
-      end
-    end
+    merger_to_csv(merger, output_file)
   end
 
   private
+
+    # combine data by key
+    def get_combiner input_enumerator
+      Combiner.new do |value|
+        value[KEYWORD_UNIQUE_ID]
+      end.combine(input_enumerator)
+    end
+
+    def get_merger combiner
+      Enumerator.new do |yielder|
+        combiner.each do |list_of_rows|
+          merged_hashes = combine_hashes(list_of_rows)
+          yielder.yield(combine_values(merged_hashes))
+        end
+      end
+    end
+
+    def merger_to_csv merger, output_file
+      done = false
+      file_index = 0
+      file_name = output_file.gsub('.txt', '')
+
+      while !done do
+        CSV.open(file_name + "_#{file_index}.txt", "wb", CSV_WRITE_OPTIONS) do |csv|
+          headers_written = false
+          line_count = 0
+
+          while line_count < LINES_PER_FILE
+            begin
+              merged = merger.next
+              if !headers_written
+                csv << merged.keys
+                headers_written = true
+                line_count +=1
+              end
+              csv << merged
+              line_count +=1
+            rescue StopIteration
+              done = true
+              break
+            end
+          end
+          file_index += 1
+        end
+      end
+    end
 
     # sorts by clicks
     def sort_by_clicks file
