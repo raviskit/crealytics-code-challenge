@@ -10,6 +10,9 @@ class Modifier
 
   LINES_PER_FILE = 120000
 
+  CSV_READ_OPTIONS = { col_sep: "\t", headers: :first_row }
+  CSV_WRITE_OPTIONS = { col_sep: "\t", headers: :first_row, row_sep: "\r\n" }
+
   def initialize saleamount_factor, cancellation_factor
     @saleamount_factor = saleamount_factor
     @cancellation_factor = cancellation_factor
@@ -41,7 +44,7 @@ class Modifier
     file_name = output.gsub('.txt', '')
     # TODO refactor
     while !done do
-      CSV.open(file_name + "_#{file_index}.txt", "wb", { col_sep: "\t", headers: :first_row, row_sep: "\r\n" }) do |csv|
+      CSV.open(file_name + "_#{file_index}.txt", "wb", CSV_WRITE_OPTIONS) do |csv|
         headers_written = false
         line_count = 0
         while line_count < LINES_PER_FILE
@@ -127,23 +130,21 @@ class Modifier
       result
     end
 
-    DEFAULT_CSV_OPTIONS = { col_sep: "\t", headers: :first_row }
-
     def read_csv file
-      CSV.read(file, DEFAULT_CSV_OPTIONS)
+      CSV.read(file, CSV_READ_OPTIONS)
     end
 
     # lazily read CSV file and init an Enumerator of lines
     def lazy_read file
       Enumerator.new do |yielder|
-        CSV.foreach(file, DEFAULT_CSV_OPTIONS) do |row|
+        CSV.foreach(file, CSV_READ_OPTIONS) do |row|
           yielder.yield(row)
         end
       end
     end
 
     def write_csv content, headers, output
-      CSV.open(output, "wb", { col_sep: "\t", headers: :first_row, row_sep: "\r\n" }) do |csv|
+      CSV.open(output, "wb", CSV_WRITE_OPTIONS) do |csv|
         csv << headers
         content.each do |row|
           csv << row
