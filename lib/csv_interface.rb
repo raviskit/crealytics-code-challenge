@@ -38,23 +38,20 @@ class CSVInterface
 
     while !done do
       CSV.open(@output_filename + "_#{ file_index }.txt", "wb", CSV_WRITE_OPTIONS) do |csv|
-        headers_written = false
-        line_count = 0
+        begin
+          merged = merger.next
+          csv << merged.keys
+          csv << merged
+          line_count = 2
 
-        while line_count < LINES_PER_FILE
-          begin
+          while line_count < LINES_PER_FILE
             merged = merger.next
-            if !headers_written
-              csv << merged.keys
-              headers_written = true
-              line_count +=1
-            end
             csv << merged
-            line_count +=1
-          rescue StopIteration
-            done = true
-            break
+            line_count += 1
           end
+
+        rescue StopIteration
+          done = true
         end
         file_index += 1
       end
